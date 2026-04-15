@@ -52,6 +52,3 @@ const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => console.log("Server is running at PORT : " + PORT))
 
-// 2:20
-// uaDEdXnJETSXW1fy
-// mongodb+srv://majorProject_db:uaDEdXnJETSXW1fy@cluster0.84ooeve.mongodb.net/?appName=Cluster0

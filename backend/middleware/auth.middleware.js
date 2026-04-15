@@ -1,8 +1,9 @@
 import User from "../models/user.model.js";
+import jwt from "jsonwebtoken"
 
 export const protectRoute = async(req, res, next) => {
     try {
-        const token = req.header.token;
+        const token = req.headers.token;
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
@@ -14,7 +15,7 @@ export const protectRoute = async(req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
-        console.log(error.message)
+        console.log("error :: authMiddleware " + error.message)
         res.json({success: false, message: error.message})
     }
 }

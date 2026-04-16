@@ -1,5 +1,6 @@
 import cloudinary from "../lib/cloudinary.js";
 import Message from "../models/message.model.js";
+import User from "../models/user.model.js";
 import { io, userSocketMap} from "../server.js";
 
 export const getUserForSideBar = async (req, res) => {
@@ -14,13 +15,13 @@ export const getUserForSideBar = async (req, res) => {
 
     const promises = filteredUsers.map(async () => {
       const messages = await Message.find({
-        senderId: user._id,
+        senderId: userId,
         receiverId: userId,
         seen: false,
       });
 
       if (messages.length > 0) {
-        unseenMessages[user._id] = messages.length;
+        unseenMessages[userId] = messages.length;
       }
     });
 

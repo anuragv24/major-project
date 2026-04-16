@@ -1,15 +1,33 @@
-import React, { useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import assets, { messagesDummyData } from "../assets/assets";
 import { formatMessageTime } from "../lib/utils";
+import { ChatContext } from "../context/chatContext";
+import { AuthContext } from "../context/AuthContext";
 
-const ChatContainer = ({ selectedUser, setSelectedUser }) => {
+const ChatContainer = () => {
+
   const scrollEnd = useRef();
+
+  const {messages, selectedUser, setSelectedUser, sendMessage, getMessages} = useContext(ChatContext)
+
+  const {authUser, onlineUsers} = useContext(AuthContext)
+
+  const [input, setInput] = useState("");
+
+  //handle sending a mesage
+  const hanldeSendMessage = async (e) => {
+    e.preventDefault();
+    if(input.trim() === "" ) return null;
+    await sendMessage({text: input.trim()});
+    setInput("")
+   
+  }
+
+  const handleSendImage = async (e) => {}
 
   useEffect(() => {
     if (scrollEnd.current) {
-      scrollEnd.current?.scrollIntoView({ behaviour: "smooth",
-        block: "end"
-       });
+        scrollEnd.current.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
   return selectedUser ? (
@@ -83,6 +101,9 @@ const ChatContainer = ({ selectedUser, setSelectedUser }) => {
           <input
             type="text"
             placeholder="Send a message"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e)=> e.key === "Enter" ? hanldeSendMessage(e) : null}
             className="flex-1 text-sm p-3 border-none rounded-lg outline-none text-white placeholder-gray-400"
           />
           <input type="file" id="image" accept="image/png, image/jpeg" hidden />
@@ -94,7 +115,11 @@ const ChatContainer = ({ selectedUser, setSelectedUser }) => {
             />
           </label>
         </div>
-        <img src={assets.send_button} alt="" className="w-7 cursor-pointer" />
+        <img 
+          onClick={hanldeSendMessage} 
+          src={assets.send_button} 
+          alt="" 
+          className="w-7 cursor-pointer" />
       </div>
     </div>
   ) : (

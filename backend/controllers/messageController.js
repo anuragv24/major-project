@@ -5,7 +5,7 @@ import { io, userSocketMap} from "../server.js";
 
 export const getUserForSideBar = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user._id; // myId
 
     const filteredUsers = await User.find({ _id: { $ne: userId } }).select(
       "-password",
@@ -13,15 +13,15 @@ export const getUserForSideBar = async (req, res) => {
 
     const unseenMessages = {};
 
-    const promises = filteredUsers.map(async () => {
-      const messages = await Message.find({
-        senderId: userId,
+    const promises = filteredUsers.map(async (user) => {
+      const count = await Message.countDocuments({
+        senderId: user._id,
         receiverId: userId,
         seen: false,
       });
 
-      if (messages.length > 0) {
-        unseenMessages[userId] = messages.length;
+      if (count > 0) {
+        unseenMessages[user._id] = count; // key is the other user's id
       }
     });
 
@@ -37,7 +37,7 @@ export const getUserForSideBar = async (req, res) => {
   }
 };
 
-export const getMessage = async (res, req) => {
+export const getMessage = async (req, res) => {
   try {
     const { id: selectedUserId } = req.params;
     const myId = req.user._id;
@@ -57,7 +57,7 @@ export const getMessage = async (res, req) => {
     res.json({ success: true, messages });
   } catch (error) {
     console.log(error.message);
-    res.json({ success: true, message: error.message });
+    res.json({ success: false, messages: [], message: error.message });
   }
 };
 
@@ -68,7 +68,7 @@ export const markMessageAsSeen = async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.log(error.message);
-    res.json({ success: true, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -101,6 +101,6 @@ export const sendMessage = async (req, res) => {
     res.json({ success: true, newMessage });
   } catch (error) {
     console.log(error.message);
-    res.json({ success: true, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };

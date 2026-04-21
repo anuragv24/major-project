@@ -10,7 +10,8 @@ function App() {
   const { authUser } = useContext(AuthContext);
   
   return (
-    <div className="bg-[url('./src/assets/bgImage.svg')] bg-contain">
+    // <div className="bg-[url('./src/assets/bgImage.svg')] bg-contain">
+    <div className="min-h-screen bg-gradient-to-r from-gray-500 to-black">
       <Toaster />
       <Routes>
         <Route

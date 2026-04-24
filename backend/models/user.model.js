@@ -2,9 +2,18 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
     email: {
-        type: String,
-        required: true,
-        unique: true,
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true,
+    },
+
+    username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
     },
 
     fullName: {
@@ -15,7 +24,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minLenght: 6
+        minlength: 6
     },
 
     profilePic: {
@@ -25,9 +34,26 @@ const userSchema = new mongoose.Schema({
 
     bio: {
         type: String,
-    }
+    },
+
+    isOnline: {
+    type: Boolean,
+    default: false
+    },
+
+    lastSeen: {
+    type: Date
+    },
+    
+    preferredLanguage: {
+    type: String,
+    default: "en"
+    },
 
 }, {timestamps: true})
+
+userSchema.index({ email: 1 });
+userSchema.index({ username: 1 });
 
 const User = mongoose.model("User", userSchema)
 

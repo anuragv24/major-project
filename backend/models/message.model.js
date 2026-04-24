@@ -13,8 +13,20 @@ const messageSchema = new mongoose.Schema({
         required: true,
     },
 
-    text: {
-        type: String
+    originalText: {
+        type: String,
+        require: true
+    },
+
+    originalLanguage: {
+        type: String,
+        require: true
+    },
+
+    // store translations
+    translations:{
+        type: Map,
+        of: String
     },
 
     image: {

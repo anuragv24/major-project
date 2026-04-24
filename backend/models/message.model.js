@@ -15,12 +15,12 @@ const messageSchema = new mongoose.Schema({
 
     originalText: {
         type: String,
-        require: true
+        required: true
     },
 
     originalLanguage: {
         type: String,
-        require: true
+        required: true
     },
 
     // store translations

@@ -97,3 +97,38 @@ export const updateProfile = async(req, res) => {
         res.json({success: false, message: error.message})
     }
 }
+
+export const updateLangage = async(req, res) => {
+    try {
+        const userId = req.user._id;
+        const {preferredLanguage} = req.body;
+
+        // validation
+    const allowedLangs = ["en", "hi", "bn"];
+
+    if (!allowedLangs.includes(preferredLanguage)) {
+      return res.json({
+        success: false,
+        message: "Invalid language",
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { preferredLanguage },
+      { new: true }
+    ).select("-password");
+
+    res.json({
+      success: true,
+      user: updatedUser,
+    });
+
+
+    } catch (error) {
+        res.json({
+            success: false,
+            message: error.message,
+        });
+    }
+}

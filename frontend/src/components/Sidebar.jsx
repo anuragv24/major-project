@@ -6,7 +6,7 @@ import { ChatContext } from '../context/chatContext';
 
 const Sidebar = () => {
 
-    const {logout, onlineUser} = useContext(AuthContext)
+    const {logout, onlineUser, updateLanguage, authUser} = useContext(AuthContext)
 
     const {selectedUser, setSelectedUser, users, getUsers, unseenMessages, setUnseenMessages} = useContext(ChatContext)
 
@@ -32,6 +32,15 @@ const Sidebar = () => {
                         <p onClick={() => navigate('/profile')} className="cursor-pointer text-sm">Edit Profile</p>
                         <hr className='my-2 border-t border-gray-500 '/>
                         <p onClick={() => logout()} className='cursor-pointer text-sm'>Logout</p>
+                        <hr className='my-2 border-t border-gray-500 '/>
+                        <select
+                            value={authUser?.preferredLanguage || "en"}
+                            onChange={(e) => updateLanguage(e.target.value)}
+                            >
+                            <option value="en">English</option>
+                            <option value="hi">Hindi</option>
+                            <option value="bn">Bengali</option>
+                        </select>
                     </div>
                 </div>
             </div>

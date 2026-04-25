@@ -16,7 +16,6 @@ export const AuthProvider = ({children}) => {
     const [authUser, setAuthUser] = useState(null) // user data
     const [onlineUser, setOnlineUser] = useState([]) // all online user
     const [socket, setSocket] = useState(null)
-    const [preferredLanguage, setPreferredLanguage] = useState("en")
 
     // Check if the user is authenticated and if so, set the user data and connect the socket
 
@@ -103,6 +102,22 @@ export const AuthProvider = ({children}) => {
         })
     }
 
+    const updateLanguage = async (lang) => {
+        try {
+            const {data} = await axios.put("/api/auth/update-language", {preferredLanguage: lang});
+            if(data.success){
+                setAuthUser((prev) => ({
+                    ...prev,
+                    preferredLanguage: lang,
+                }))
+
+                toast.success("Language Updated")
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
     useEffect(() => {
         if(token){
             axios.defaults.headers.common["token"] = token
@@ -118,8 +133,7 @@ export const AuthProvider = ({children}) => {
         login,
         logout,
         updateProfile,
-        preferredLanguage,
-        setPreferredLanguage
+        updateLanguage
     }
 
     return (

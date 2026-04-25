@@ -16,6 +16,7 @@ export const AuthProvider = ({children}) => {
     const [authUser, setAuthUser] = useState(null) // user data
     const [onlineUser, setOnlineUser] = useState([]) // all online user
     const [socket, setSocket] = useState(null)
+    const [preferredLanguage, setPreferredLanguage] = useState("en")
 
     // Check if the user is authenticated and if so, set the user data and connect the socket
 
@@ -116,7 +117,9 @@ export const AuthProvider = ({children}) => {
         socket,
         login,
         logout,
-        updateProfile
+        updateProfile,
+        preferredLanguage,
+        setPreferredLanguage
     }
 
     return (

@@ -33,6 +33,7 @@ export const ChatProvider = ({children}) => {
     const getMessages = async (userId) => {
         try {
             const {data} = await axios.get(`/api/messages/${userId}`);
+            console.log("get messages : ", data)
             if(data.success){
                 setMessages(data.messages)
             }

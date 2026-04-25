@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
 
     username: {
     type: String,
-    required: true,
+    // required: true,
     unique: true,
     trim: true
     },
@@ -52,8 +52,6 @@ const userSchema = new mongoose.Schema({
 
 }, {timestamps: true})
 
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
 
 const User = mongoose.model("User", userSchema)
 

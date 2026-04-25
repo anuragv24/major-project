@@ -15,7 +15,6 @@ const messageSchema = new mongoose.Schema({
 
     originalText: {
         type: String,
-        required: true
     },
 
     originalLanguage: {

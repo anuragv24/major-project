@@ -1,4 +1,4 @@
-import { translate } from "./translate.service";
+import { translate } from "./translate.service.js";
 
 
 export async function safeTranslate(text, source, target) {

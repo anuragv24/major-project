@@ -11,6 +11,7 @@ export const ChatProvider = ({children}) => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [unseenMessages, setUnseenMessages] = useState({})
+    const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(true);
 
     const {axios, socket} = useContext(AuthContext)
 
@@ -122,7 +123,9 @@ export const ChatProvider = ({children}) => {
         selectedUser,
         sendMessage,
         setSelectedUser,  
-        getMessages
+        getMessages,
+        isRightSidebarOpen,
+        setIsRightSidebarOpen
     }
 
     return (

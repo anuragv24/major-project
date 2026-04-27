@@ -9,7 +9,7 @@ import { getLanguageName } from "../constants";
 
 const ChatContainer = () => {
   const scrollEnd = useRef();
-  const { messages, selectedUser, setSelectedUser, sendMessage, getMessages } = useContext(ChatContext);
+  const { messages, selectedUser, setSelectedUser, sendMessage, getMessages, setIsRightSidebarOpen, isRightSidebarOpen } = useContext(ChatContext);
   const { authUser, onlineUsers } = useContext(AuthContext);
 
   const [input, setInput] = useState("");
@@ -87,11 +87,12 @@ const ChatContainer = () => {
             alt="Arrow"
             className="md:hidden max-w-7 cursor-pointer"
             />
-            <img
+          {!isRightSidebarOpen && <img
             src={assets.help_icon}
             alt="Info"
-            className="max-md:hidden max-w-5 cursor-pointer opacity-70 hover:opacity-100 transition-opacity"
-            />
+            onClick={() => setIsRightSidebarOpen(prev => !prev)}
+            className="max-md:hidden max-w-5 cursor-pointer hover:scale-110 transition-transform opacity-70 hover:opacity-100"
+          />}
         </div>
       </div>
 
@@ -159,7 +160,7 @@ const ChatContainer = () => {
       </div>
 
       {/* bottom area */}
-      <div className="absolute bottom-0 left-0 right-0 flex items-center gap-3 p-3 bg-transparent">
+      <div className="absolute bottom-1.5 left-0 right-0 flex items-center gap-3 p-3 bg-transparent">
         <div className="flex-1 flex items-center bg-[#282142]/60 backdrop-blur-md px-3 rounded-full border border-white/5">
           <input
             type="text"

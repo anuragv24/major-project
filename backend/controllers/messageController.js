@@ -90,16 +90,19 @@ export const sendMessage = async (req, res) => {
     const receiverId = req.params.id;
     const senderId = req.user._id;
 
-    const sender = await User.findById(senderId);
-    const receiver = await User.findById(receiverId);
+    const [sender, receiver] = await Promise.all([
+      User.findById(senderId),
+      User.findById(receiverId)
+    ])
 
-    const senderLang = sender.preferredLanguage || "en";
-    const receiverLang = receiver.preferredLanguage || "en";
+    const senderLang = sender.preferredLanguage || "en-IN";
+    const receiverLang = receiver.preferredLanguage || "en-IN";
 
     let translatedText = null;
 
     if(text && senderLang !== receiverLang){
       translatedText = await safeTranslate(text, senderLang, receiverLang);
+      console.log("Translated Text :: ", translatedText)
     }
 
     let imageUrl;
@@ -114,7 +117,7 @@ export const sendMessage = async (req, res) => {
       originalText: text || "",
       originalLanguage: senderLang,
       translations: translatedText 
-        ? new ( [[receiverLang, translatedText]]) 
+        ? new Map( [[receiverLang, translatedText]]) 
         : new Map(),
       image: imageUrl,
     });

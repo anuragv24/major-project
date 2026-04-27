@@ -4,6 +4,9 @@ import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { ChatContext } from '../context/chatContext';
 import { Globe, X } from 'lucide-react';
+import { SARVAM_LANGUAGES } from "../constants";
+
+
 
 const Sidebar = () => {
     const { logout, onlineUser, updateLanguage, authUser } = useContext(AuthContext);
@@ -14,18 +17,7 @@ const Sidebar = () => {
     const [isLangModalOpen, setIsLangModalOpen] = useState(false);
 
     // Sarvam AI supported languages
-    const sarvamLanguages = [
-        { code: "en", name: "English" }, { code: "hi", name: "Hindi" }, { code: "bn", name: "Bengali" },
-        { code: "as", name: "Assamese" }, { code: "brx", name: "Bodo" }, { code: "doi", name: "Dogri" },
-        { code: "gu", name: "Gujarati" }, { code: "kn", name: "Kannada" }, { code: "ks", name: "Kashmiri" },
-        { code: "gom", name: "Konkani" }, { code: "mai", name: "Maithili" }, { code: "ml", name: "Malayalam" },
-        { code: "mni", name: "Manipuri" }, { code: "mr", name: "Marathi" }, { code: "ne", name: "Nepali" },
-        { code: "or", name: "Odia" }, { code: "pa", name: "Punjabi" }, { code: "sa", name: "Sanskrit" },
-        { code: "sat", name: "Santali" }, { code: "sd", name: "Sindhi" }, { code: "ta", name: "Tamil" },
-        { code: "te", name: "Telugu" }, { code: "ur", name: "Urdu" }
-    ];
-
-    const currentLangName = sarvamLanguages.find(l => l.code === authUser?.preferredLanguage)?.name || "English";
+    const currentLangName = SARVAM_LANGUAGES.find(l => l.code === authUser?.preferredLanguage)?.name || "English";
 
     const filteredUsers = searchTerm 
         ? users.filter((user) => user.fullName.toLowerCase().includes(searchTerm.toLowerCase())) 
@@ -137,7 +129,7 @@ const Sidebar = () => {
                             {/* List Section */}
                             <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-2 px-1">Choose Language</p>
                             <div className="grid grid-cols-1 gap-1">
-                                {sarvamLanguages.map((lang) => (
+                                {SARVAM_LANGUAGES.map((lang) => (
                                     <button
                                         key={lang.code}
                                         onClick={() => {

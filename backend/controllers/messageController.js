@@ -43,31 +43,42 @@ export const getMessage = async (req, res) => {
     const { id: selectedUserId } = req.params;
     const myId = req.user._id;
 
+    // 1. Move this outside the loop for efficiency
+    const myLang = req.user.preferredLanguage || "en";
+
     const messages = await Message.find({
       $or: [
         { senderId: myId, receiverId: selectedUserId },
         { senderId: selectedUserId, receiverId: myId },
       ],
-    });
+    }).lean(); // Optimization: use .lean() for faster, plain JS objects
 
+    // Mark messages as seen
     await Message.updateMany(
       { senderId: selectedUserId, receiverId: myId },
       { seen: true },
     );
 
-    const myLang = req.user.preferredLanguage || "en";
     const formattedMessages = messages.map((msg) => {
+      // Use msg.text as a ultimate fallback if originalText is missing in DB
+      const original = msg.originalText || msg.text || "";
+      
       return {
-        ...msg._doc,
-        text: msg.originalLanguage === myLang
-          ? msg.originalText
-          : msg.translations?.get(myLang) || msg.originalText,
-      }
-    })
+        ...msg,
+        translatedText: msg.originalLanguage === myLang
+          ? original
+          : msg.translations?.[myLang] || original,
+        originalText: original,
+        // Optional: Keep 'text' field for any legacy UI components
+        text: msg.originalLanguage === myLang 
+          ? original 
+          : msg.translations?.[myLang] || original
+      };
+    });
 
     res.json({ success: true, messages: formattedMessages });
   } catch (error) {
-    console.log(error.message);
+    console.error("Error in getMessage:", error.message);
     res.json({ success: false, messages: [], message: error.message });
   }
 };
@@ -123,29 +134,38 @@ export const sendMessage = async (req, res) => {
     });
 
     //emit the new message to the receiver socket
-    const receiverSocketId = userSocketMap[receiverId]
-    if(receiverSocketId){
-        io.to(receiverSocketId).emit("newMessage", {
-          ...newMessage._doc,
-          text:
-            newMessage.translations?.get(receiverLang) || newMessage.originalText,
-        })
-    }
-
-    // emit the new Message to the sender socket
-    const senderSocketId = userSocketMap[senderId];
-    if (senderSocketId) {
-      io.to(senderSocketId).emit("newMessage", {
+    const receiverSocketId = userSocketMap[receiverId];
+if (receiverSocketId) {
+    io.to(receiverSocketId).emit("newMessage", {
         ...newMessage._doc,
+        // The receiver sees the translated version as the primary text
+        translatedText: newMessage.translations?.get(receiverLang) || newMessage.originalText,
+        originalText: newMessage.originalText,
+        // We keep 'text' for backward compatibility or if other parts of your app still use it
+        text: newMessage.translations?.get(receiverLang) || newMessage.originalText,
+    });
+}
+
+// emit the new Message to the sender socket
+const senderSocketId = userSocketMap[senderId];
+if (senderSocketId) {
+    io.to(senderSocketId).emit("newMessage", {
+        ...newMessage._doc,
+        // The sender sees their own original text as both
+        translatedText: newMessage.originalText,
+        originalText: newMessage.originalText,
         text: newMessage.originalText,
-      });
-    }
+    });
+}
 
     res.json({ 
       success: true, 
       newMessage: {
         ...newMessage._doc,
-        text: newMessage.originalText,
+        // For the sender, original and translated are the same
+        translatedText: newMessage.originalText,
+        originalText: newMessage.originalText,
+        text: newMessage.originalText, 
       } 
     });
   } catch (error) {

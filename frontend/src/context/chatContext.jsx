@@ -31,49 +31,76 @@ export const ChatProvider = ({children}) => {
 
     // function to get message for selected users
     const getMessages = async (userId) => {
-        try {
-            const {data} = await axios.get(`/api/messages/${userId}`);
-            console.log("get messages : ", data)
-            if(data.success){
-                setMessages(data.messages)
-            }
-        } catch (error) {
-            toast.error(error.message)
+    try {
+        const { data } = await axios.get(`/api/messages/${userId}`);
+        
+        if (data.success) {
+            // Format the fetched history to match our new message structure
+            const formattedHistory = data.messages.map((msg) => ({
+                ...msg,
+                // Ensure UI always has these two fields even for old messages
+                translatedText: msg.translatedText || msg.text,
+                originalText: msg.originalText || msg.text
+            }));
+
+            setMessages(formattedHistory);
         }
+    } catch (error) {
+        toast.error(error.message);
     }
+};
 
     // function to send message to selected user
     const sendMessage = async (messageData) => {
-        try {
-            const {data} = await axios.post(`api/messages/send/${selectedUser._id}`, messageData)
-            if(data.success){
-                setMessages((prev) => [...prev, data.newMessage])
-            } else {
-                toast.error(data.message)
-            }
-        } catch (error) {
-            toast.error(error.message)
+    try {
+        const { data } = await axios.post(`api/messages/send/${selectedUser._id}`, messageData);
+        if (data.success) {
+            const finalMsg = {
+                ...data.newMessage,
+                translatedText: data.newMessage.translatedText || data.newMessage.text,
+                originalText: data.newMessage.originalText || data.newMessage.text
+            };
+            setMessages((prev) => [...prev, finalMsg]);
         }
+    } catch (error) {
+        toast.error(error.message);
     }
+};
 
     // function to subscribe to message ffor selected user
 
     const subscribeToMessage = async () => {
-        if(!socket) return;
+    if (!socket) return;
 
-        socket.on("newMessage", async (newMessage) => {
-            if(selectedUser && newMessage.senderId === selectedUser._id){
-                newMessage.seen = true;
-                setMessages((prev) => [...prev, newMessage])
-                await axios.put(`/api/messages/mark/${newMessage._id}`);
-            } else {
-                setUnseenMessages((prev) => ({
-                    ...prev, 
-                    [newMessage.senderId] : prev[newMessage.senderId] ? prev[newMessage.senderId] + 1 : 1
-                }))
-            }
-        })
-    }
+    // It's good practice to turn off the listener before turning it on 
+    // to prevent duplicate listeners if the component re-renders.
+    socket.off("newMessage");
+
+    socket.on("newMessage", async (newMessage) => {
+        // Ensure the message has the fields ChatContainer needs
+        // If translatedText is missing, we fallback to the standard .text field
+        const formattedMessage = {
+            ...newMessage,
+            translatedText: newMessage.translatedText || newMessage.text,
+            originalText: newMessage.originalText || newMessage.text,
+        };
+
+        if (selectedUser && formattedMessage.senderId === selectedUser._id) {
+            formattedMessage.seen = true;
+            
+            setMessages((prev) => [...prev, formattedMessage]);
+            
+            // Mark as seen in database
+            await axios.put(`/api/messages/mark/${formattedMessage._id}`);
+        } else {
+            // Update unseen count for background users
+            setUnseenMessages((prev) => ({
+                ...prev, 
+                [formattedMessage.senderId]: (prev[formattedMessage.senderId] || 0) + 1 
+            }));
+        }
+    });
+};
 
     // function to unsubscribe from message
 

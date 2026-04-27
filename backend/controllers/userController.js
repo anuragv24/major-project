@@ -104,14 +104,14 @@ export const updateLangage = async(req, res) => {
         const {preferredLanguage} = req.body;
 
         // validation
-    const allowedLangs = ["en", "hi", "bn"];
+    // const allowedLangs = ["en", "hi", "bn"];
 
-    if (!allowedLangs.includes(preferredLanguage)) {
-      return res.json({
-        success: false,
-        message: "Invalid language",
-      });
-    }
+    // if (!allowedLangs.includes(preferredLanguage)) {
+    //   return res.json({
+    //     success: false,
+    //     message: "Invalid language",
+    //   });
+    // }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,

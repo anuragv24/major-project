@@ -118,6 +118,23 @@ export const AuthProvider = ({children}) => {
         }
     }
 
+    // Inside AuthContext.jsx
+const toggleBlock = async (targetUserId) => {
+  try {
+    const res = await axios.post("/api/auth/toggle-block", { targetUserId });
+    if (res.data.success) {
+      // Update the local authUser state so the UI reflects the change instantly
+      setAuthUser(prev => ({
+        ...prev,
+        blockedUsers: res.data.blockedUsers // The backend returns the new array
+      }));
+      toast.success(res.data.isBlocked ? "User blocked" : "User unblocked");
+    }
+  } catch (error) {
+    toast.error("Failed to update block status");
+  }
+};
+
     useEffect(() => {
         if(token){
             axios.defaults.headers.common["token"] = token
@@ -133,7 +150,8 @@ export const AuthProvider = ({children}) => {
         login,
         logout,
         updateProfile,
-        updateLanguage
+        updateLanguage,
+        toggleBlock
     }
 
     return (

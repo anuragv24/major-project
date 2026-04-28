@@ -132,3 +132,25 @@ export const updateLangage = async(req, res) => {
         });
     }
 }
+
+export const toggleBlock = async (req, res) => {
+  try {
+    const { targetUserId } = req.body;
+    const myId = req.user._id;
+
+    const user = await User.findById(myId);
+    const isBlocked = user.blockedUsers.includes(targetUserId);
+
+    if (isBlocked) {
+      // Unblock: Remove the ID from the array
+      await User.findByIdAndUpdate(myId, { $pull: { blockedUsers: targetUserId } });
+    } else {
+      // Block: Add the ID to the array
+      await User.findByIdAndUpdate(myId, { $addToSet: { blockedUsers: targetUserId } });
+    }
+
+    res.json({ success: true, isBlocked: !isBlocked });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};

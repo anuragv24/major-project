@@ -8,15 +8,19 @@ import {
   Mail,
   Calendar,
   LogOut,
+  ShieldAlert,
+  ShieldCheck,
 } from "lucide-react";
 import { getLanguageName } from "../constants";
 
 const RightSidebar = () => {
   const { selectedUser, messages, setIsRightSidebarOpen } =
     useContext(ChatContext);
-  const { logout, onlineUser } = useContext(AuthContext);
+  const { logout, onlineUser, authUser, toggleBlock } = useContext(AuthContext);
   const [msgImage, setMsgImage] = useState([]);
   const [showAllMedia, setShowAllMedia] = useState(false);
+
+  const isBlocked = authUser.blockedUsers?.includes(selectedUser?._id);
 
   useEffect(() => {
     setMsgImage(messages.filter((msg) => msg.image).map((msg) => msg.image));
@@ -128,6 +132,29 @@ const RightSidebar = () => {
           )}
         </div>
       </div>
+
+      <hr className="w-full border-gray-600/50" />
+
+      <button
+        onClick={() => toggleBlock(selectedUser._id)} 
+        className={`w-full py-2.5 rounded-xl text-xs font-medium transition-all flex items-center justify-center gap-2 ${
+          isBlocked
+            ? "bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20"
+            : "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
+        }`}
+      >
+        {isBlocked ? (
+          <>
+            <ShieldCheck size={14} /> Unblock{" "}
+            {selectedUser.fullName.split(" ")[0]}
+          </>
+        ) : (
+          <>
+            <ShieldAlert size={14} /> Block{" "}
+            {selectedUser.fullName.split(" ")[0]}
+          </>
+        )}
+      </button>
 
       {/* Logout Footer */}
       <div className="absolute bottom-0 w-full p-6 bg-gradient-to-t from-[#1e1b2e] to-transparent">

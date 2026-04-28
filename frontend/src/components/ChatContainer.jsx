@@ -9,11 +9,15 @@ import { getLanguageName } from "../constants";
 
 const ChatContainer = () => {
   const scrollEnd = useRef();
-  const { messages, selectedUser, setSelectedUser, sendMessage, getMessages, setIsRightSidebarOpen, isRightSidebarOpen } = useContext(ChatContext);
+  const {messages, selectedUser, setSelectedUser, sendMessage, getMessages, setIsRightSidebarOpen, isRightSidebarOpen,} = useContext(ChatContext);
   const { authUser, onlineUsers } = useContext(AuthContext);
 
   const [input, setInput] = useState("");
   const [showOriginal, setShowOriginal] = useState({});
+
+  const isBlockedThem = authUser.blockedUsers?.includes(selectedUser?._id);
+  const theyBlockedMe = selectedUser?.blockedUsers?.includes(authUser._id);
+  const isActiveBlock = isBlockedThem || theyBlockedMe;
 
   const toggleOriginal = (msgId) => {
     setShowOriginal((prev) => ({
@@ -67,32 +71,38 @@ const ChatContainer = () => {
         />
         <div className="flex-1 flex flex-col">
           <div className="flex items-center gap-2 leading-tight">
-            <p className="text-lg text-white font-medium">{selectedUser.fullName}</p>
+            <p className="text-lg text-white font-medium">
+              {selectedUser.fullName}
+            </p>
             {onlineUsers?.includes(selectedUser._id) && (
               <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
             )}
           </div>
-          
+
           {/* Subtle Language Indicator */}
           <div className="flex items-center gap-1 text-[11px] text-violet-300/80">
             <Globe size={11} className="text-violet-400" />
-            <span>Receives in {getLanguageName(selectedUser.preferredLanguage)}</span>
+            <span>
+              Receives in {getLanguageName(selectedUser.preferredLanguage)}
+            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-            <img
+          <img
             onClick={() => setSelectedUser(null)}
             src={assets.arrow_icon}
             alt="Arrow"
             className="md:hidden max-w-7 cursor-pointer"
+          />
+          {!isRightSidebarOpen && (
+            <img
+              src={assets.help_icon}
+              alt="Info"
+              onClick={() => setIsRightSidebarOpen((prev) => !prev)}
+              className="max-md:hidden max-w-5 cursor-pointer hover:scale-110 transition-transform opacity-70 hover:opacity-100"
             />
-          {!isRightSidebarOpen && <img
-            src={assets.help_icon}
-            alt="Info"
-            onClick={() => setIsRightSidebarOpen(prev => !prev)}
-            className="max-md:hidden max-w-5 cursor-pointer hover:scale-110 transition-transform opacity-70 hover:opacity-100"
-          />}
+          )}
         </div>
       </div>
 
@@ -101,7 +111,8 @@ const ChatContainer = () => {
         {messages?.map((message, index) => {
           const isMine = message.senderId === authUser._id;
           // Updated isTranslated check for more accuracy
-          const isTranslated = !isMine && message.originalLanguage !== authUser.preferredLanguage;
+          const isTranslated =
+            !isMine && message.originalLanguage !== authUser.preferredLanguage;
           const displayOriginal = showOriginal[message._id];
 
           return (
@@ -120,14 +131,16 @@ const ChatContainer = () => {
                   <>
                     <p
                       className={`p-3 md:text-sm font-light rounded-2xl break-words text-white ${
-                        isMine 
-                          ? "bg-violet-600/40 rounded-br-none" 
+                        isMine
+                          ? "bg-violet-600/40 rounded-br-none"
                           : "bg-white/10 rounded-bl-none"
                       }`}
                     >
-                      {displayOriginal ? message.originalText : (message.translatedText || message.text)}
+                      {displayOriginal
+                        ? message.originalText
+                        : message.translatedText || message.text}
                     </p>
-                    
+
                     {isTranslated && (
                       <button
                         onClick={() => toggleOriginal(message._id)}
@@ -145,7 +158,11 @@ const ChatContainer = () => {
 
               <div className="flex flex-col items-center gap-1 min-w-[40px]">
                 <img
-                  src={isMine ? authUser?.profilePic || assets.avatar_icon : selectedUser?.profilePic || assets.avatar_icon}
+                  src={
+                    isMine
+                      ? authUser?.profilePic || assets.avatar_icon
+                      : selectedUser?.profilePic || assets.avatar_icon
+                  }
                   alt="avatar"
                   className="w-7 h-7 rounded-full object-cover border border-white/10"
                 />
@@ -160,42 +177,58 @@ const ChatContainer = () => {
       </div>
 
       {/* bottom area */}
-      <div className="absolute bottom-1.5 left-0 right-0 flex items-center gap-3 p-3 bg-transparent">
-        <div className="flex-1 flex items-center bg-[#282142]/60 backdrop-blur-md px-3 rounded-full border border-white/5">
-          <input
-            type="text"
-            placeholder="Send a message"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => (e.key === "Enter" ? hanldeSendMessage(e) : null)}
-            className="flex-1 text-sm p-3 bg-transparent border-none outline-none text-white placeholder-gray-400"
-          />
-          <input
-            type="file"
-            id="image"
-            accept="image/png, image/jpeg"
-            onChange={handleSendImage}
-            hidden
-          />
-          <label htmlFor="image">
-            <img
-              src={assets.gallery_icon}
-              alt="gallery"
-              className="w-5 mr-2 cursor-pointer hover:opacity-70 transition-opacity"
-            />
-          </label>
+      {isActiveBlock ? (
+        <div className="p-4 text-center bg-black/20 backdrop-blur-md">
+          <p className="text-xs text-gray-400">
+            {isBlockedThem
+              ? "You have blocked this user. Unblock them to send a message."
+              : "You can no longer send messages to this user."}
+          </p>
         </div>
-        <button 
-          onClick={hanldeSendMessage}
-          className="p-3 bg-violet-600 hover:bg-violet-500 rounded-full transition-colors shadow-lg"
-        >
-          <img src={assets.send_button} alt="send" className="w-5" />
-        </button>
-      </div>
+      ) : (
+        <div className="absolute bottom-1.5 left-0 right-0 flex items-center gap-3 p-3 bg-transparent">
+          <div className="absolute bottom-1.5 left-0 right-0 flex items-center gap-3 p-3 bg-transparent">
+            <div className="flex-1 flex items-center bg-[#282142]/60 backdrop-blur-md px-3 rounded-full border border-white/5">
+              <input
+                type="text"
+                placeholder="Send a message"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" ? hanldeSendMessage(e) : null
+                }
+                className="flex-1 text-sm p-3 bg-transparent border-none outline-none text-white placeholder-gray-400"
+              />
+              <input
+                type="file"
+                id="image"
+                accept="image/png, image/jpeg"
+                onChange={handleSendImage}
+                hidden
+              />
+              <label htmlFor="image">
+                <img
+                  src={assets.gallery_icon}
+                  alt="gallery"
+                  className="w-5 mr-2 cursor-pointer hover:opacity-70 transition-opacity"
+                />
+              </label>
+            </div>
+            <button
+              onClick={hanldeSendMessage}
+              className="p-3 bg-violet-600 hover:bg-violet-500 rounded-full transition-colors shadow-lg"
+            >
+              <img src={assets.send_button} alt="send" className="w-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full gap-2 text-gray-500 bg-white/5 max-md:hidden">
-      <p className="text-lg font-medium text-white/50">Select a contact to start chatting</p>
+      <p className="text-lg font-medium text-white/50">
+        Select a contact to start chatting
+      </p>
     </div>
   );
 };

@@ -29,6 +29,7 @@ const Sidebar = () => {
 
   const filterUsers = users.filter((user) => {
     if (user.blockedUsers?.includes(authUser._id)) return false;
+    if (user.isVerified === false) return false;
     if (
       searchTerm &&
       !user.fullName.toLowerCase().includes(searchTerm.toLowerCase())

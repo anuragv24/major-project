@@ -8,7 +8,10 @@ export const getUserForSideBar = async (req, res) => {
   try {
     const userId = req.user._id; // myId
 
-    const filteredUsers = await User.find({ _id: { $ne: userId } }).select(
+    const filteredUsers = await User.find({ 
+      _id: { $ne: userId },
+      isVerified: true
+    }).select(
       "-password",
     );
 

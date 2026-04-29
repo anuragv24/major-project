@@ -67,7 +67,9 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">
-      {/* <img src={assets.logo_big} alt="" className="w-[min(30vw, 250px)]" /> */}
+      
+      {/* LOGO */}
+      {/* <img src={" "} alt="" className="w-[min(30vw, 250px)]" /> */} 
 
       <div className="absolute w-64 h-64 bg-purple-600/20 rounded-full blur-3xl -top-10 -left-10"></div>
       <div className="absolute w-64 h-64 bg-blue-600/20 rounded-full blur-3xl -bottom-10 -right-10"></div>

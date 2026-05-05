@@ -54,11 +54,12 @@ const Sidebar = () => {
     >
       <div className="pb-5">
         <div className="flex justify-between items-center">
-          <img
-            src={assets.logo || null}
-            alt="logo"
-            className="max-w-[120px] md:max-w-40"
-          />
+          <span 
+            onClick={()=> navigate("/")}
+            className="text-2xl md:text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 cursor-pointer">
+            Sangam
+          </span>
+          
 
           <div className="flex items-center gap-3 md:gap-4">
             {/* Language Selector Trigger */}
